@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capture Images and Send Embeddings</title>
+    <style>
+        #camera {
+            display: block;
+            margin: 20px auto;
+            border: 2px solid black;
+            border-radius: 10px;
+        }
+        #status {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align: center;">Capture 50 Images and Generate Mean Embedding</h1>
+    
+    <div style="text-align: center;">
+        <video id="camera" width="400" height="300" autoplay></video>
+        <p id="status">Click "Start" to begin capturing images</p>
+        <button id="startButton">Start Capturing</button>
+    </div>
+
+    <script>
+        const video = document.getElementById('camera');
+        const startButton = document.getElementById('startButton');
+        const statusText = document.getElementById('status');
+
+        const imageArray = [];
+        let captureCount = 0;
+        const MAX_IMAGES = 50;
+
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (error) {
+                alert('Failed to access webcam: ' + error.message);
+            }
+        }
+
+        function captureImage() {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/jpeg');
+        }
+
+        async function sendImages(images) {
+            statusText.innerText = 'Sending images to the server...';
+
+            const formData = new FormData();
+
+            images.forEach((dataURL, index) => {
+                // Convert base64 to Blob directly
+                const byteString = atob(dataURL.split(',')[1]); // Extract base64 data after the comma
+                const mimeType = dataURL.split(',')[0].match(/:(.*?);/)[1]; // Get the MIME type
+                const arrayBuffer = new Uint8Array(byteString.length);
+
+                for (let i = 0; i < byteString.length; i++) {
+                    arrayBuffer[i] = byteString.charCodeAt(i);
+                }
+
+                const blob = new Blob([arrayBuffer], { type: mimeType });
+                formData.append('files', blob, `image_${index}.jpg`);
+            });
+
+            const response = await fetch('http://127.0.0.1:8000/generate-mean-embedding/', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+            statusText.innerText = 'Embedding received! Check console for details.';
+            console.log('Mean Embedding:', result.mean_embedding);
+        }
+
+
+        startButton.addEventListener('click', async () => {
+            startButton.disabled = true;
+            statusText.innerText = 'Capturing images...';
+
+            while (captureCount < MAX_IMAGES) {
+                const imageData = captureImage();
+                imageArray.push(imageData);
+                captureCount++;
+                statusText.innerText = `Captured ${captureCount}/${MAX_IMAGES} images`;
+                await new Promise(resolve => setTimeout(resolve, 100)); // Capture every 100ms
+            }
+
+            statusText.innerText = 'Images captured. Sending them to the server...';
+            await sendImages(imageArray);
+        });
+
+        // Start the camera on page load
+        startCamera();
+    </script>
+
+</body>
+</html>
