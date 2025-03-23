@@ -1,0 +1,14 @@
+{
+    "fork": null,
+    "chain": {
+      "chainId": 1337,
+      "hardfork": "istanbul"
+    },
+    "miner": {
+      "blockTime": 5
+    },
+    "wallet": {
+      "totalAccounts": 2
+    }
+  }
+  
