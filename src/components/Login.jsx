@@ -7,45 +7,52 @@ import FaceCapture from './FaceCapture';
 const Login = ({ contract, walletAddress }) => {
   const [verificationStatus, setVerificationStatus] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [timing, setTiming] = useState({ total: 0, backend: 0, blockchain: 0 });
 
-  const handleLogin = async (images, startTime) => {
+  const bytes32ToCID = (hashBytes) => {
+    const cidBytes = new Uint8Array(34);
+    cidBytes.set([0x12, 0x20]);
+    cidBytes.set(ethers.getBytes(hashBytes), 2);
+    return bs58.encode(cidBytes);
+  };
+
+  const handleLogin = async (images) => {
     try {
       setLoading(true);
       setVerificationStatus(null);
-      const timingData = { start: Date.now() };
 
-      // Backend verification
-      timingData.backendStart = Date.now();
+      // 1. Get stored hash from blockchain
+      const storedHash = await contract.getBiometricHash(walletAddress);
+      
+      // 2. Convert to IPFS CID
+      const storedCID = bytes32ToCID(storedHash);
+      
+      // 3. Prepare verification data
       const formData = new FormData();
       images.forEach((img, index) => {
+        if (!img.startsWith('data:image')) {
+          throw new Error(`Invalid image format at index ${index}`);
+        }
         const blob = dataURLtoBlob(img);
         formData.append('files', blob, `login_${index}.jpg`);
       });
       formData.append('wallet_address', walletAddress);
-      
+      formData.append('ipfs_hash', storedCID);
+
+      // 4. Verify with backend
       const response = await axios.post(
         'http://192.168.114.109:8000/login', 
         formData, 
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
-      timingData.backend = Date.now() - timingData.backendStart;
 
-      // Blockchain verification
+      // 5. Blockchain verification
       if (response.data.authenticated) {
-        timingData.blockchainStart = Date.now();
-        const storedHash = await contract.getBiometricHash(walletAddress);
+        console.log("HI")
         const tx = await contract.verifyIdentity(walletAddress, ethers.getBytes(storedHash));
         await tx.wait();
-        timingData.blockchain = Date.now() - timingData.blockchainStart;
-        
-        setTiming({
-          total: Date.now() - timingData.start,
-          backend: timingData.backend,
-          blockchain: timingData.blockchain
-        });
         setVerificationStatus('success');
       } else {
+        console.log("BYE")
         setVerificationStatus('invalid');
       }
     } catch (error) {
@@ -64,27 +71,20 @@ const Login = ({ contract, walletAddress }) => {
         onImagesCaptured={handleLogin}
         walletAddress={walletAddress}
         captureButtonText={loading ? 'Verifying...' : 'Start Login'}
-        onCaptureStart={(start) => setTiming({ start })}
       />
 
       {verificationStatus === 'success' && (
-        <div className="mt-4 p-3 bg-green-800 rounded">
-          ✓ Login successful!<br/>
-          <span className="text-xs">
-            Total: {timing.total}ms | Backend: {timing.backend}ms | Blockchain: {timing.blockchain}ms
-          </span>
-        </div>
+        <div className="mt-4 p-3 bg-green-800 rounded">✓ Login successful!</div>
       )}
-
-      {/* Other status displays */}
+      {verificationStatus === 'invalid' && (
+        <div className="mt-4 p-3 bg-red-800 rounded">✗ Verification failed</div>
+      )}
+      {verificationStatus === 'error' && (
+        <div className="mt-4 p-3 bg-red-800 rounded">⚠ Verification error</div>
+      )}
     </div>
   );
 };
-
-// dataURLtoBlob function remains the same
-
-
-
 
 const dataURLtoBlob = (dataURL) => {
   if (typeof dataURL !== 'string') {
