@@ -1,0 +1,79 @@
+Embedding extraction: 3.0436 seconds
+Embedding extraction: 0.2489 seconds
+Embedding extraction: 0.2169 seconds
+Embedding extraction: 0.2319 seconds
+Embedding extraction: 0.2344 seconds
+Embedding extraction: 0.2037 seconds
+Embedding extraction: 0.1956 seconds
+Embedding extraction: 0.2326 seconds
+Embedding extraction: 0.2003 seconds
+Embedding extraction: 0.2272 seconds
+Encryption: 0.0010 seconds
+IPFS upload: 1.9752 seconds
+Total register time: 7.0405 seconds
+Embedding extraction: 0.2075 seconds
+Embedding extraction: 0.1781 seconds
+Embedding extraction: 0.2278 seconds
+Embedding extraction: 0.2237 seconds
+Embedding extraction: 0.1873 seconds
+Embedding extraction: 0.1867 seconds
+Embedding extraction: 0.1965 seconds
+Embedding extraction: 0.2313 seconds
+Embedding extraction: 0.1804 seconds
+Embedding extraction: 0.2366 seconds
+Encryption: 0.0000 seconds
+IPFS upload: 1.7400 seconds
+Total register time: 3.8104 seconds
+IPFS fetch: 0.7745 seconds
+Decryption: 0.0010 seconds
+Login embedding extraction: 0.2044 seconds
+Total login time: 0.9851 seconds
+Embedding extraction: 0.2211 seconds
+Embedding extraction: 0.1957 seconds
+Embedding extraction: 0.1892 seconds
+Embedding extraction: 0.2402 seconds
+Embedding extraction: 0.2283 seconds
+Embedding extraction: 0.1941 seconds
+Embedding extraction: 0.1701 seconds
+Embedding extraction: 0.1775 seconds
+Embedding extraction: 0.2012 seconds
+Embedding extraction: 0.1802 seconds
+Encryption: 0.0000 seconds
+IPFS upload: 2.2090 seconds
+Total register time: 4.2192 seconds
+Embedding extraction: 0.1955 seconds
+Embedding extraction: 0.1917 seconds
+Embedding extraction: 0.2113 seconds
+Embedding extraction: 0.1843 seconds
+Embedding extraction: 0.1894 seconds
+Embedding extraction: 0.2203 seconds
+Embedding extraction: 0.1929 seconds
+Embedding extraction: 0.1887 seconds
+Embedding extraction: 0.1706 seconds
+Embedding extraction: 0.1852 seconds
+Encryption: 0.0000 seconds
+IPFS upload: 1.7698 seconds
+Total register time: 3.7125 seconds
+IPFS fetch: 1.1276 seconds
+Decryption: 0.0000 seconds
+Login embedding extraction: 0.2220 seconds
+Total login time: 1.1537 seconds
+
+
+register - 8.7185 seconds
+register - 3.7016 seconds
+register - 4.5287 seconds
+register - 3.7399 seconds
+register - 4.0451 seconds
+register - 3.5819 seconds
+register - 4.3072 seconds
+register - 3.8522 seconds
+register - 3.9006 seconds
+register - 3.7593 seconds
+register - 3.8797 seconds
+register - 3.8860 seconds
+register - 3.5879 seconds
+register - 3.6941 seconds
+register - 8.7644 seconds
+register - 7.2239 seconds
+register - 5.1813 seconds
