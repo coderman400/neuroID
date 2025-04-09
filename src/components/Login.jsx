@@ -4,7 +4,7 @@ import bs58 from 'bs58';
 import axios from 'axios';
 import FaceCapture from './FaceCapture';
 
-const Login = ({ contract, walletAddress }) => {
+const Login = ({ contract, walletAddress, onLoginSuccess }) => {
   const [verificationStatus, setVerificationStatus] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -71,7 +71,7 @@ const Login = ({ contract, walletAddress }) => {
       
       // 4. Verify with backend
       const response = await axios.post(
-        'http://192.168.126.109:8000/login',
+        'http://172.20.10.7:8000/login',
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -79,11 +79,13 @@ const Login = ({ contract, walletAddress }) => {
       // 5. Blockchain verification
       if (response.data.authenticated) {
         console.log("Backend authentication successful");
+        
         // Make sure we have valid bytes for the blockchain call
         const hashBytes = ethers.getBytes(storedHash);
         const tx = await contract.verifyIdentity(walletAddress, hashBytes);
         await tx.wait();
         setVerificationStatus('success');
+        onLoginSuccess()
       } else {
         console.log("Backend authentication failed");
         setVerificationStatus('invalid');
@@ -97,7 +99,7 @@ const Login = ({ contract, walletAddress }) => {
   };
 
   return (
-    <div className="p-6 bg-gray-800 rounded-lg">
+    <div className="p-6 ">
       <h3 className="text-xl mb-4">Biometric Login</h3>
       <FaceCapture
         onImagesCaptured={handleLogin}

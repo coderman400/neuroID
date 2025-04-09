@@ -54,7 +54,7 @@ const ConnectWallet = ({ onConnected }) => {
         onClick={connectWallet} 
         disabled={isConnecting}
         className={`p-2 text-white rounded ${
-          isConnecting ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+          isConnecting ? 'bg-gray-500 cursor-not-allowed' : 'bg-[#252422] hover:bg-gray-900'
         }`}
       >
         {isConnecting ? "Connecting..." : 

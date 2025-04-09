@@ -15,6 +15,7 @@ const FaceCapture = ({
   const canvasRef = useRef(null);
   const intervalRef = useRef(null);
   const processedRef = useRef(false);
+  const [captureProgress, setCaptureProgress] = useState(0);
 
   // Convert data URL to Blob
   const dataURLtoBlob = (dataURL) => {
@@ -50,6 +51,7 @@ const FaceCapture = ({
 
   // Handle completing capture when we have 10 images
   useEffect(() => {
+    setCaptureProgress(Math.min((images.length / 10) * 100, 100));
     if (images.length >= 10 && !processedRef.current) {
       processedRef.current = true;
       clearInterval(intervalRef.current);
@@ -74,11 +76,12 @@ const FaceCapture = ({
     const ctx = canvasRef.current.getContext("2d");
     ctx.drawImage(videoRef.current, 0, 0, 320, 240);
     const imgData = canvasRef.current.toDataURL("image/jpeg");
-
+    
     setImages(prev => {
       const newImages = [...prev, imgData];
       return newImages.length <= 10 ? newImages : prev;
     });
+    
   };
 
   // Send images to backend as multipart form
@@ -95,7 +98,7 @@ const FaceCapture = ({
       // Add wallet address
       formData.append('wallet_address', walletAddress);
 
-      const response = await axios.post("http://192.168.126.109:8000/register", formData, {
+      const response = await axios.post("http://172.20.10.7:8000/register", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -135,31 +138,48 @@ const FaceCapture = ({
   // Start/stop capture
   const startCapturing = () => {
     // Clear any existing interval first
+    setCaptureProgress(0)
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
     setImages([]);
     setIsCapturing(true);
     processedRef.current = false;
-    intervalRef.current = setInterval(captureImage, 1000);
+    intervalRef.current = setInterval(captureImage, 500);
   };
-  
+
+
   return (
     <div className="flex flex-col items-center">
-      <video ref={videoRef} autoPlay playsInline width={320} height={240} className="border rounded-lg" />
+      <video ref={videoRef} autoPlay playsInline width={320} height={240} className="rounded-lg" />
       <canvas ref={canvasRef} width={320} height={240} hidden />
       <button 
         onClick={startCapturing} 
-        className="mt-4 p-2 bg-blue-500 text-white rounded"
+        className="mt-2 px-6 py-2 bg-[#252422] hover:bg-gray-900 text-white rounded-full transition-colors duration-200"
         disabled={isCapturing}
       >
-        {isCapturing ? "Capturing..." : captureButtonText}
+        {isCapturing ? (
+          <span className="flex items-center">
+            <span className="animate-pulse mr-2">⏳</span>
+            Capturing...
+          </span>
+        ) : (
+          captureButtonText
+        )}
       </button>
-      <div className="flex mt-4 space-x-2 overflow-x-auto">
+      {/* Progress bar */}
+      <div className="w-full max-w-xs bg-gray-700 rounded-full h-2.5 mt-4 mb-4">
+        <div 
+          className="bg-[#eb5e28] h-2.5 rounded-full transition-all duration-300 ease-out" 
+          style={{ width: `${captureProgress}%` }}
+        ></div>
+      </div>
+      
+      {/* <div className="flex mt-4 space-x-2 overflow-x-auto">
         {images.map((img, i) => (
           <img key={i} src={img} alt={`Frame ${i+1}`} className="w-16 h-16 object-cover rounded-lg border" />
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };
