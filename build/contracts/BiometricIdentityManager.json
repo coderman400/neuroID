@@ -19644,10 +19644,16 @@
       "links": {},
       "address": "0x49C6c6bd3e2C85138F48d7727E09132FE7e303Cd",
       "transactionHash": "0x201a770ef873cc007b1ccbcc2c41f231b797baa4799587cf780202c0838917c0"
+    },
+    "1744220671018": {
+      "events": {},
+      "links": {},
+      "address": "0x43B1CE1EF45A5506FC4D3b7E352cD39eDbb0DAc5",
+      "transactionHash": "0xdbefbf9f64039269f8688a7b721468a4f48182d60b50c6a003fea7d7048fb6ad"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-04-06T20:35:52.064Z",
+  "updatedAt": "2025-04-09T17:45:51.603Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "Contract for managing decentralized identity using biometric hashes",

@@ -9,19 +9,49 @@ const Login = ({ contract, walletAddress }) => {
   const [loading, setLoading] = useState(false);
 
   const bytes32ToCID = (hashBytes) => {
-    const cidBytes = new Uint8Array(34);
-    cidBytes.set([0x12, 0x20]);
-    cidBytes.set(ethers.getBytes(hashBytes), 2);
-    return bs58.encode(cidBytes);
+    // Make sure hashBytes is in the correct format
+    try {
+      const bytes = ethers.getBytes(hashBytes);
+      const cidBytes = new Uint8Array(34);
+      cidBytes.set([0x12, 0x20]); // CIDv0 prefix
+      cidBytes.set(bytes, 2);
+      return bs58.encode(cidBytes);
+    } catch (error) {
+      console.error("Error converting bytes32 to CID:", error);
+      throw error;
+    }
   };
 
   const handleLogin = async (images) => {
     try {
       setLoading(true);
       setVerificationStatus(null);
-
+      let storedHash
       // 1. Get stored hash from blockchain
-      const storedHash = await contract.getBiometricHash(walletAddress);
+      try {
+        storedHash = await contract.getBiometricHash(walletAddress);
+      } catch (error) {
+        // Check if this is the "Identity does not exist" error from the contract
+        if (error.message && error.message.includes("Identity does not exist")) {
+          console.log("User not registered yet");
+          setVerificationStatus('not-registered');
+          return;
+        } else {
+          // Some other unexpected error
+          console.error("Unexpected error:", error);
+          setVerificationStatus('error');
+          return;
+        }
+      }
+      
+      console.log("Received hash from blockchain:", storedHash);
+      
+      // Handle empty hash scenario (user not registered)
+      if (!storedHash || storedHash === "0x" || storedHash == "BAD_DATA" || storedHash === ethers.ZeroHash) {
+        console.error("No biometric hash found for this address");
+        setVerificationStatus('not-registered');
+        return;
+      }
       
       // 2. Convert to IPFS CID
       const storedCID = bytes32ToCID(storedHash);
@@ -35,24 +65,27 @@ const Login = ({ contract, walletAddress }) => {
         const blob = dataURLtoBlob(img);
         formData.append('files', blob, `login_${index}.jpg`);
       });
+      
       formData.append('wallet_address', walletAddress);
       formData.append('ipfs_hash', storedCID);
-
+      
       // 4. Verify with backend
       const response = await axios.post(
-        'http://192.168.114.109:8000/login', 
-        formData, 
+        'http://192.168.126.109:8000/login',
+        formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
-
+      
       // 5. Blockchain verification
       if (response.data.authenticated) {
-        console.log("HI")
-        const tx = await contract.verifyIdentity(walletAddress, ethers.getBytes(storedHash));
+        console.log("Backend authentication successful");
+        // Make sure we have valid bytes for the blockchain call
+        const hashBytes = ethers.getBytes(storedHash);
+        const tx = await contract.verifyIdentity(walletAddress, hashBytes);
         await tx.wait();
         setVerificationStatus('success');
       } else {
-        console.log("BYE")
+        console.log("Backend authentication failed");
         setVerificationStatus('invalid');
       }
     } catch (error) {
@@ -66,13 +99,11 @@ const Login = ({ contract, walletAddress }) => {
   return (
     <div className="p-6 bg-gray-800 rounded-lg">
       <h3 className="text-xl mb-4">Biometric Login</h3>
-      
-      <FaceCapture 
+      <FaceCapture
         onImagesCaptured={handleLogin}
         walletAddress={walletAddress}
         captureButtonText={loading ? 'Verifying...' : 'Start Login'}
       />
-
       {verificationStatus === 'success' && (
         <div className="mt-4 p-3 bg-green-800 rounded">✓ Login successful!</div>
       )}
@@ -82,6 +113,9 @@ const Login = ({ contract, walletAddress }) => {
       {verificationStatus === 'error' && (
         <div className="mt-4 p-3 bg-red-800 rounded">⚠ Verification error</div>
       )}
+      {verificationStatus === 'not-registered' && (
+        <div className="mt-4 p-3 bg-yellow-800 rounded">⚠ You need to register first</div>
+      )}
     </div>
   );
 };
@@ -90,16 +124,13 @@ const dataURLtoBlob = (dataURL) => {
   if (typeof dataURL !== 'string') {
     throw new Error('Invalid dataURL format');
   }
-  
   const arr = dataURL.split(',');
   const mime = arr[0].match(/:(.*?);/)[1];
   const bstr = atob(arr[1]);
   const u8arr = new Uint8Array(bstr.length);
-  
   for (let i = 0; i < bstr.length; i++) {
     u8arr[i] = bstr.charCodeAt(i);
   }
-  
   return new Blob([u8arr], { type: mime });
 };
 

@@ -3,19 +3,19 @@ import axios from "axios";
 import { ethers } from "ethers";
 import bs58 from 'bs58'
 
-
-
 const FaceCapture = ({ 
   onImagesCaptured,  // For login flow
   onHashReceived,    // For registration flow
   walletAddress, 
-  captureButtonText 
+  captureButtonText = "Start Capture" 
 }) => {
   const [images, setImages] = useState([]);
+  const [isCapturing, setIsCapturing] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const intervalRef = useRef(null);
-  let flag = 0
+  const processedRef = useRef(false);
+
   // Convert data URL to Blob
   const dataURLtoBlob = (dataURL) => {
     const arr = dataURL.split(',');
@@ -48,6 +48,25 @@ const FaceCapture = ({
     };
   }, []);
 
+  // Handle completing capture when we have 10 images
+  useEffect(() => {
+    if (images.length >= 10 && !processedRef.current) {
+      processedRef.current = true;
+      clearInterval(intervalRef.current);
+      setIsCapturing(false);
+      
+      const finalImages = images.slice(0, 10);
+      
+      if (onImagesCaptured) {
+        // For login flow: pass images directly
+        onImagesCaptured(finalImages);
+      } else if (onHashReceived) {
+        // For registration flow: process through backend
+        sendToBackend(finalImages);
+      }
+    }
+  }, [images, onImagesCaptured, onHashReceived]);
+
   // Image capture handler
   const captureImage = () => {
     if (!canvasRef.current || !videoRef.current) return;
@@ -58,91 +77,83 @@ const FaceCapture = ({
 
     setImages(prev => {
       const newImages = [...prev, imgData];
-      if (newImages.length >= 10) {
-        clearInterval(intervalRef.current);
-        if (onImagesCaptured) {
-          // For login flow: pass images directly
-          onImagesCaptured(newImages.slice(0, 10));
-        } else if (onHashReceived) {
-          // For registration flow: process through backend
-          sendToBackend(newImages.slice(0, 10));
-        }
-      }
       return newImages.length <= 10 ? newImages : prev;
     });
   };
 
   // Send images to backend as multipart form
-  // Send images to backend as multipart form
-const sendToBackend = async (images) => {
-  try {
-    const formData = new FormData();
-    
-    // Add images as files
-    images.forEach((img, index) => {
-      const blob = dataURLtoBlob(img);
-      formData.append('files', blob, `face_${index + 1}.jpg`);
-    });
-    
-    // Add wallet address
-    formData.append('wallet_address', walletAddress);
+  const sendToBackend = async (images) => {
+    try {
+      const formData = new FormData();
+      
+      // Add images as files
+      images.forEach((img, index) => {
+        const blob = dataURLtoBlob(img);
+        formData.append('files', blob, `face_${index + 1}.jpg`);
+      });
+      
+      // Add wallet address
+      formData.append('wallet_address', walletAddress);
 
-    const response = await axios.post("http://192.168.114.109:8000/register", formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+      const response = await axios.post("http://192.168.126.109:8000/register", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      // Verify response structure
+      if (!response.data?.ipfs_hash || typeof response.data.ipfs_hash !== 'string') {
+        throw new Error('Invalid IPFS hash format from server');
       }
-    });
 
-    // Verify response structure
-    if (!response.data?.ipfs_hash || typeof response.data.ipfs_hash !== 'string') {
-      throw new Error('Invalid IPFS hash format from server');
+      // Decode base58 CID
+      const decoded = bs58.decode(response.data.ipfs_hash);
+      
+      // Handle CIDv0 format (34 bytes: 2-byte prefix + 32-byte hash)
+      if (decoded.length !== 34) {
+        throw new Error(`Unexpected CID length: ${decoded.length} bytes (expected 34 for CIDv0)`);
+      }
+      
+      // Extract the 32-byte hash (remove 2-byte prefix)
+      const hashBytes = decoded.slice(2);
+      
+      // Validate hash length
+      if (hashBytes.length !== 32) {
+        throw new Error(`Invalid hash length: ${hashBytes.length} bytes (expected 32)`);
+      }
+      
+      // Convert to Uint8Array for Ethereum compatibility
+      const hashArray = new Uint8Array(hashBytes);
+      onHashReceived(hashArray);
+
+    } catch (error) {
+      console.error("Face processing error:", error);
+      // Add error state handling here if needed
     }
-
-    // Decode base58 CID
-    const decoded = bs58.decode(response.data.ipfs_hash);
-    
-    // Handle CIDv0 format (34 bytes: 2-byte prefix + 32-byte hash)
-    if (decoded.length !== 34) {
-      throw new Error(`Unexpected CID length: ${decoded.length} bytes (expected 34 for CIDv0)`);
-    }
-    
-    // Extract the 32-byte hash (remove 2-byte prefix)
-    const hashBytes = decoded.slice(2);
-    
-    // Validate hash length
-    if (hashBytes.length !== 32) {
-      throw new Error(`Invalid hash length: ${hashBytes.length} bytes (expected 32)`);
-    }
-    
-    // Convert to Uint8Array for Ethereum compatibility
-    const hashArray = new Uint8Array(hashBytes);
-    onHashReceived(hashArray);
-
-  } catch (error) {
-    console.error("Face processing error:", error);
-    // Add error state handling here if needed
-  }
-};
-
+  };
 
   // Start/stop capture
   const startCapturing = () => {
     // Clear any existing interval first
-    flag=0
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
     setImages([]);
+    setIsCapturing(true);
+    processedRef.current = false;
     intervalRef.current = setInterval(captureImage, 1000);
   };
   
-
   return (
     <div className="flex flex-col items-center">
       <video ref={videoRef} autoPlay playsInline width={320} height={240} className="border rounded-lg" />
       <canvas ref={canvasRef} width={320} height={240} hidden />
-      <button onClick={startCapturing} className="mt-4 p-2 bg-blue-500 text-white rounded">
-        Start Capture
+      <button 
+        onClick={startCapturing} 
+        className="mt-4 p-2 bg-blue-500 text-white rounded"
+        disabled={isCapturing}
+      >
+        {isCapturing ? "Capturing..." : captureButtonText}
       </button>
       <div className="flex mt-4 space-x-2 overflow-x-auto">
         {images.map((img, i) => (

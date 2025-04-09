@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import ConnectWallet from './components/ConnectWallet';
 import abi from '../build/contracts/BiometricIdentityManager.json';
 import Login from './components/Login';
-const CONTRACT_ADDRESS = "0x2D45f4b6B67Fa52B279D9E5c3819f14AF98767da";
+const CONTRACT_ADDRESS = "0x43B1CE1EF45A5506FC4D3b7E352cD39eDbb0DAc5";
 const CONTRACT_ABI = abi.abi;
 
 function App() {
