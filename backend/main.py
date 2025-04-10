@@ -95,6 +95,7 @@ def pin_to_ipfs(file_bytes: bytes, filename: str):
 
 @app.post("/register")
 async def register(wallet_address: str = Form(...), files: list[UploadFile] = File(...)):
+    print("hit - register")
     start_time = time.time()
 
     embeddings = []
@@ -128,6 +129,7 @@ async def register(wallet_address: str = Form(...), files: list[UploadFile] = Fi
 
 @app.post("/login")
 async def login(ipfs_hash: str = Form(...), wallet_address: str = Form(...), files: list[UploadFile] = File(...)):
+    print("hit - register")
     start_time = time.time()
 
     url = f"https://gateway.pinata.cloud/ipfs/{ipfs_hash}"
