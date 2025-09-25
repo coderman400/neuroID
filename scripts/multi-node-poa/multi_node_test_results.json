@@ -1,0 +1,335 @@
+{
+  "timestamp": "2025-09-25T15:24:47.888Z",
+  "networkConfig": {
+    "validatorCount": 7,
+    "blockTime": 5,
+    "consensusOverhead": 0.12,
+    "networkLatency": 0.08
+  },
+  "testResults": {
+    "scalabilityTest": {
+      "testType": "enhanced_multi_node_scalability",
+      "totalIdentities": 22677,
+      "overallTPS": 31.5,
+      "peakTPS": 44.79,
+      "avgConfirmationTime": 5195,
+      "overallSuccessRate": 99.61,
+      "phases": [
+        {
+          "name": "ramp_up",
+          "duration": 120,
+          "loadMultiplier": 0.5,
+          "achievedTPS": 16.99,
+          "identitiesProcessed": 1906,
+          "successRate": 99.70037294282824,
+          "avgConfirmationTime": 4549,
+          "avgGasUsed": 184637,
+          "errors": 8
+        },
+        {
+          "name": "sustained",
+          "duration": 300,
+          "loadMultiplier": 1,
+          "achievedTPS": 30.56,
+          "identitiesProcessed": 9528,
+          "successRate": 99.4611270539564,
+          "avgConfirmationTime": 5459,
+          "avgGasUsed": 195899,
+          "errors": 38
+        },
+        {
+          "name": "peak",
+          "duration": 180,
+          "loadMultiplier": 1.5,
+          "achievedTPS": 44.79,
+          "identitiesProcessed": 8575,
+          "successRate": 99.59670291452052,
+          "avgConfirmationTime": 5089,
+          "avgGasUsed": 202587,
+          "errors": 34
+        },
+        {
+          "name": "ramp_down",
+          "duration": 120,
+          "loadMultiplier": 0.7,
+          "achievedTPS": 23.34,
+          "identitiesProcessed": 2668,
+          "successRate": 99.667947618106,
+          "avgConfirmationTime": 5682,
+          "avgGasUsed": 189396,
+          "errors": 11
+        }
+      ],
+      "validatorDistribution": [
+        {
+          "validator": "validator1",
+          "transactions": 3932,
+          "share": 17.34,
+          "avgResponseTime": 1357,
+          "successRate": 99.53020529547855
+        },
+        {
+          "validator": "validator2",
+          "transactions": 3060,
+          "share": 13.49,
+          "avgResponseTime": 974,
+          "successRate": 99.51225383108418
+        },
+        {
+          "validator": "validator3",
+          "transactions": 3442,
+          "share": 15.18,
+          "avgResponseTime": 1184,
+          "successRate": 99.26812431692969
+        },
+        {
+          "validator": "validator4",
+          "transactions": 3784,
+          "share": 16.69,
+          "avgResponseTime": 1355,
+          "successRate": 99.73602602053936
+        },
+        {
+          "validator": "validator5",
+          "transactions": 2697,
+          "share": 11.89,
+          "avgResponseTime": 1210,
+          "successRate": 99.22334463515482
+        },
+        {
+          "validator": "validator6",
+          "transactions": 4026,
+          "share": 17.75,
+          "avgResponseTime": 1497,
+          "successRate": 99.22607400683599
+        },
+        {
+          "validator": "validator7",
+          "transactions": 3479,
+          "share": 15.34,
+          "avgResponseTime": 1481,
+          "successRate": 99.23142600337148
+        }
+      ],
+      "resourceUtilization": {
+        "avgCpuUsage": 52,
+        "avgMemoryUsage": 64,
+        "avgNetworkUtilization": 40,
+        "avgDiskIO": 37,
+        "peakCpuUsage": 93,
+        "peakMemoryUsage": 86
+      },
+      "storageMetrics": {
+        "totalOnChainStorage": 12.7,
+        "totalIPFSStorage": 46.8,
+        "verificationStorage": 0.36,
+        "storageGrowthRate": null,
+        "compressionRatio": 0.85
+      }
+    },
+    "propagationTest": {
+      "testType": "block_propagation_analysis",
+      "duration": 300,
+      "validatorCount": 7,
+      "blocksAnalyzed": 60,
+      "propagationMetrics": {
+        "averagePropagationTime": 103,
+        "p95PropagationTime": 119,
+        "p99PropagationTime": 134,
+        "maxPropagationTime": 150,
+        "networkHealth": "good",
+        "consensusParticipation": 100,
+        "validatorStats": [
+          {
+            "validator": "validator1",
+            "avgLatency": 102,
+            "blocksProduced": 105,
+            "uptime": 99.32030125772616
+          },
+          {
+            "validator": "validator2",
+            "avgLatency": 76,
+            "blocksProduced": 118,
+            "uptime": 99.2965580946889
+          },
+          {
+            "validator": "validator3",
+            "avgLatency": 94,
+            "blocksProduced": 98,
+            "uptime": 99.60606738627882
+          },
+          {
+            "validator": "validator4",
+            "avgLatency": 99,
+            "blocksProduced": 99,
+            "uptime": 99.54625307595282
+          },
+          {
+            "validator": "validator5",
+            "avgLatency": 97,
+            "blocksProduced": 93,
+            "uptime": 99.47987764359637
+          },
+          {
+            "validator": "validator6",
+            "avgLatency": 86,
+            "blocksProduced": 111,
+            "uptime": 99.5350983803723
+          },
+          {
+            "validator": "validator7",
+            "avgLatency": 62,
+            "blocksProduced": 89,
+            "uptime": 99.71060678641439
+          }
+        ]
+      },
+      "networkTopology": {
+        "totalConnections": 42,
+        "avgHopCount": 2.81,
+        "partitionTolerance": "byzantine_fault_tolerant",
+        "geographicSpread": "global"
+      },
+      "performance": {
+        "avgBlocksPerSecond": 0.2,
+        "consensusEfficiency": 97.06852460366629,
+        "networkUtilization": 39
+      }
+    },
+    "gasPriceTest": {
+      "testType": "gas_price_sensitivity_analysis",
+      "priceRangesTested": 5,
+      "totalTransactions": 500,
+      "optimalGasPrice": 4.5,
+      "overallSuccessRate": 97.98,
+      "priceRangeResults": [
+        {
+          "priceRange": "low",
+          "minPrice": 1,
+          "maxPrice": 8,
+          "optimalPrice": 4.5,
+          "transactionsTested": 100,
+          "successRate": 99.6,
+          "avgConfirmationTime": 5000,
+          "totalGasCost": 81900000,
+          "efficiency": "high"
+        },
+        {
+          "priceRange": "medium",
+          "minPrice": 8,
+          "maxPrice": 20,
+          "optimalPrice": null,
+          "transactionsTested": 100,
+          "successRate": 98.07,
+          "avgConfirmationTime": 5400,
+          "totalGasCost": 254800000,
+          "efficiency": "medium"
+        },
+        {
+          "priceRange": "high",
+          "minPrice": 20,
+          "maxPrice": 50,
+          "optimalPrice": null,
+          "transactionsTested": 100,
+          "successRate": 97.11,
+          "avgConfirmationTime": 6000,
+          "totalGasCost": 637000000,
+          "efficiency": "low"
+        },
+        {
+          "priceRange": "very_high",
+          "minPrice": 50,
+          "maxPrice": 100,
+          "optimalPrice": null,
+          "transactionsTested": 100,
+          "successRate": 97.27,
+          "avgConfirmationTime": 6667,
+          "totalGasCost": 1365000000,
+          "efficiency": "low"
+        },
+        {
+          "priceRange": "extreme",
+          "minPrice": 100,
+          "maxPrice": 500,
+          "optimalPrice": null,
+          "transactionsTested": 100,
+          "successRate": 97.85,
+          "avgConfirmationTime": 18333,
+          "totalGasCost": 5460000000,
+          "efficiency": "low"
+        }
+      ]
+    },
+    "failureTest": {
+      "testType": "network_failure_analysis",
+      "baselineDuration": 120,
+      "recoveryDuration": 180,
+      "scenariosTested": 5,
+      "averageResilience": 57.2,
+      "faultTolerance": "crash_fault_tolerant",
+      "criticalScenarios": 1,
+      "scenarioResults": [
+        {
+          "name": "single_validator_failure",
+          "description": "Single validator node failure",
+          "impactSeverity": "low",
+          "recoveryTime": 12000,
+          "consensusMaintained": true,
+          "baselineTPS": 31.76,
+          "degradedTPS": 29.22,
+          "performanceReduction": 8,
+          "networkResilience": 92,
+          "faultTolerance": "maintained"
+        },
+        {
+          "name": "minority_failure",
+          "description": "Minority validator failure (3/7)",
+          "impactSeverity": "medium",
+          "recoveryTime": 35000,
+          "consensusMaintained": true,
+          "baselineTPS": 31.76,
+          "degradedTPS": 22.87,
+          "performanceReduction": 28,
+          "networkResilience": 72,
+          "faultTolerance": "maintained"
+        },
+        {
+          "name": "network_partition",
+          "description": "Network partition simulation",
+          "impactSeverity": "high",
+          "recoveryTime": 95000,
+          "consensusMaintained": false,
+          "baselineTPS": 31.76,
+          "degradedTPS": 11.12,
+          "performanceReduction": 65,
+          "networkResilience": 35,
+          "faultTolerance": "compromised"
+        },
+        {
+          "name": "cascading_failure",
+          "description": "Cascading failure pattern",
+          "impactSeverity": "critical",
+          "recoveryTime": 145000,
+          "consensusMaintained": false,
+          "baselineTPS": 31.76,
+          "degradedTPS": 4.76,
+          "performanceReduction": 85,
+          "networkResilience": 15,
+          "faultTolerance": "compromised"
+        },
+        {
+          "name": "byzantine_behavior",
+          "description": "Byzantine validator behavior",
+          "impactSeverity": "medium",
+          "recoveryTime": 48000,
+          "consensusMaintained": true,
+          "baselineTPS": 31.76,
+          "degradedTPS": 22.87,
+          "performanceReduction": 28,
+          "networkResilience": 72,
+          "faultTolerance": "maintained"
+        }
+      ]
+    }
+  }
+}
